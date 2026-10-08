@@ -1,0 +1,16 @@
+# Dependency Review Configuration
+# =============================================================================
+# Used by GitHub Actions dependency-review-action
+# =============================================================================
+
+fail-on-severity: high
+allow-ghsas:
+  # Allow specific vulnerabilities if needed (with justification)
+  # - GHSA-xxxx-xxxx-xxxx  # Justification: ...
+
+ignore-paths:
+  - 'docs/**'
+  - '*.md'
+  - 'scripts/**'
+
+config-file: '.github/dependency-review-config.yml'

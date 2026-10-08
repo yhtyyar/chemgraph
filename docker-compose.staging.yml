@@ -1,0 +1,54 @@
+# Docker Compose Override for Staging Environment
+# =============================================================================
+# Usage: docker-compose -f docker-compose.yml -f docker-compose.staging.yml up -d
+# =============================================================================
+
+version: '3.8'
+
+services:
+  nginx:
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./config/nginx.staging.conf:/etc/nginx/nginx.conf:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - ghost_content:/var/lib/ghost/content:ro
+    environment:
+      - STAGING_DOMAIN=staging.chemgraph.ru
+
+  ghost:
+    environment:
+      - NODE_ENV=production
+      - GHOST_URL=https://staging.chemgraph.ru
+      - GHOST_ADMIN_URL=https://staging.chemgraph.ru/ghost
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+        reservations:
+          memory: 512M
+
+  mysql:
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+        reservations:
+          memory: 512M
+
+  redis:
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+
+volumes:
+  ghost_content:
+    external: true
+  mysql_data:
+    external: true
+  redis_data:
+    external: true

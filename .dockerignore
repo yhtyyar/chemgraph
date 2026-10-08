@@ -1,0 +1,98 @@
+# Docker ignore patterns for Chemgraph
+# =============================================================================
+
+# Git
+.git
+.gitignore
+.github
+
+# Documentation
+docs/
+README.md
+PROJECT-PLAN.md
+LICENSE
+
+# Environment files (secrets!)
+.env
+.env.*
+*.env
+.env.local
+.env.production
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+
+# Node
+node_modules/
+npm-cache/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+env/
+
+# Test / Coverage
+coverage/
+.nyc_output/
+
+# Build artifacts
+dist/
+build/
+*.zip
+*.tar.gz
+
+# Database
+*.sql
+*.dump
+*.sqlite
+
+# Backup
+backups/
+*.backup
+*.bak
+
+# SSL / Certificates
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+
+# Secrets
+*.secret
+secrets/
+*.age
+*.gpg
+
+# Temporary
+tmp/
+temp/
+*.tmp
+
+# Docker
+docker-compose.override.yml
+Dockerfile.*
+
+# Misc
+*.orig
+*.rej

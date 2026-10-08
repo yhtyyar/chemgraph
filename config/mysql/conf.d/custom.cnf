@@ -1,0 +1,61 @@
+# MySQL Configuration for Ghost CMS
+# =============================================================================
+# Place in config/mysql/conf.d/custom.cnf
+# =============================================================================
+
+[mysqld]
+# Character set
+character-set-server = utf8mb4
+collation-server = utf8mb4_unicode_ci
+
+# Connection settings
+max_connections = 200
+max_connect_errors = 1000000
+connect_timeout = 10
+
+# Buffer sizes
+innodb_buffer_pool_size = 256M
+innodb_log_file_size = 64M
+innodb_log_buffer_size = 16M
+innodb_flush_log_at_trx_commit = 1
+innodb_file_per_table = 1
+
+# Query cache (deprecated in 8.0, using internal optimizations)
+# query_cache_type = 0
+# query_cache_size = 0
+
+# Temporary tables
+tmp_table_size = 64M
+max_heap_table_size = 64M
+
+# Slow query log
+slow_query_log = 1
+slow_query_log_file = /var/log/mysql/slow.log
+long_query_time = 2
+log_queries_not_using_indexes = 1
+
+# Binary logging (for replication)
+log_bin = mysql-bin
+binlog_format = ROW
+expire_logs_days = 7
+max_binlog_size = 100M
+
+# GTID (for replication)
+gtid_mode = ON
+enforce_gtid_consistency = ON
+
+# Security
+local_infile = 0
+skip_name_resolve = 1
+
+# Performance schema
+performance_schema = ON
+
+# InnoDB strict mode
+innodb_strict_mode = ON
+
+[client]
+default-character-set = utf8mb4
+
+[mysql]
+default-character-set = utf8mb4

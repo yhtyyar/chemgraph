@@ -1,0 +1,78 @@
+# Multi-stage Dockerfile for Ghost CMS
+# Build stage: install dependencies, build assets
+# Runtime stage: minimal non-root image with Ghost
+
+# =============================================================================
+# BUILD STAGE
+# =============================================================================
+FROM node:20-alpine AS builder
+
+# Build arguments
+ARG GHOST_VERSION=5.100
+ARG TARGETARCH
+
+# Install build dependencies
+RUN apk add --no-cache \
+    python3 \
+    make \
+    g++ \
+    sqlite-dev \
+    vips-dev
+
+# Create app directory
+WORKDIR /usr/src/ghost
+
+# Download and verify Ghost
+RUN wget -q "https://github.com/TryGhost/Ghost/releases/download/${GHOST_VERSION}/Ghost-${GHOST_VERSION}.zip" \
+    && unzip -q "Ghost-${GHOST_VERSION}.zip" \
+    && rm "Ghost-${GHOST_VERSION}.zip"
+
+# Install production dependencies only
+RUN npm install --omit=dev --ignore-scripts \
+    && npm cache clean --force
+
+# =============================================================================
+# RUNTIME STAGE
+# =============================================================================
+FROM node:20-alpine AS runtime
+
+# Build arguments
+ARG GHOST_VERSION=5.100
+
+# Install runtime dependencies
+RUN apk add --no-cache \
+    dumb-init \
+    vips \
+    sqlite-libs \
+    su-exec \
+    tini
+
+# Create non-root user
+RUN addgroup -g 1000 -S ghost \
+    && adduser -u 1000 -S ghost -G ghost
+
+# Create app directory
+WORKDIR /var/lib/ghost
+
+# Copy built Ghost from builder
+COPY --from=builder /usr/src/ghost .
+
+# Create content directory and set permissions
+RUN mkdir -p /var/lib/ghost/content \
+    && chown -R ghost:ghost /var/lib/ghost
+
+# Switch to non-root user
+USER ghost
+
+# Expose Ghost port
+EXPOSE 2368
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=5 \
+    CMD wget --no-verbose --tries=1 --spider http://localhost:2368/health || exit 1
+
+# Use tini as init for proper signal handling
+ENTRYPOINT ["tini", "--"]
+
+# Start Ghost
+CMD ["node", "current/index.js"]

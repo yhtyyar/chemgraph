@@ -1,0 +1,192 @@
+# Docker Compose for Production (HA) - Chemgraph
+# =============================================================================
+# Usage: docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+# Requires: Docker Swarm mode initialized (docker swarm init)
+# =============================================================================
+
+version: '3.8'
+
+services:
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./config/nginx.prod.conf:/etc/nginx/nginx.conf:ro
+      - ./config/ssl:/etc/nginx/ssl:ro
+      - ghost_content:/var/lib/ghost/content:ro
+    deploy:
+      replicas: 2
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+      update_config:
+        parallelism: 1
+        delay: 10s
+        order: start-first
+    secrets:
+      - ssl_cert
+      - ssl_key
+    networks:
+      - chemgraph-prod-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+  ghost:
+    image: ghcr.io/${GITHUB_REPOSITORY_OWNER:-org}/chemgraph-ghost:${GHOST_IMAGE_TAG:-latest}
+    environment:
+      - NODE_ENV=production
+      - GHOST_URL=https://chemgraph.ru
+      - GHOST_ADMIN_URL=https://chemgraph.ru/ghost
+      - database__client=mysql
+      - database__connection__host=mysql
+      - database__connection__port=3306
+      - database__connection__user=ghost
+      - database__connection__database=ghost
+      - url__utils__redis__host=redis
+      - url__utils__redis__port=6379
+      - mail__transport=SMTP
+      - mail__options__host=${SMTP_HOST}
+      - mail__options__port=${SMTP_PORT}
+      - mail__options__secure=true
+    secrets:
+      - mysql_password
+      - jwt_secret
+      - smtp_password
+    volumes:
+      - ghost_content:/var/lib/ghost/content
+    deploy:
+      replicas: 3
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+        max_attempts: 3
+      update_config:
+        parallelism: 1
+        delay: 30s
+        order: start-first
+      resources:
+        limits:
+          memory: 1G
+        reservations:
+          memory: 512M
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:2368/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    networks:
+      - chemgraph-prod-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+  mysql:
+    image: mysql:8.0
+    environment:
+      - MYSQL_DATABASE=ghost
+      - MYSQL_USER=ghost
+    secrets:
+      - mysql_root_password
+      - mysql_password
+    volumes:
+      - mysql_data:/var/lib/mysql
+    command:
+      - --default-authentication-plugin=mysql_native_password
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --max-connections=500
+      - --innodb-buffer-pool-size=512M
+      - --log-bin=mysql-bin
+      - --server-id=1
+      - --gtid-mode=ON
+      - --enforce-gtid-consistency
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        condition: on-failure
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$$(cat /run/secrets/mysql_root_password)"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - chemgraph-prod-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+  redis:
+    image: redis:7-alpine
+    command: redis-server --requirepass $$(cat /run/secrets/redis_password) --appendonly yes --maxmemory 512mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    secrets:
+      - redis_password
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        condition: on-failure
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "$$(cat /run/secrets/redis_password)", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - chemgraph-prod-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+volumes:
+  mysql_data:
+    driver: local
+  redis_data:
+    driver: local
+  ghost_content:
+    driver: local
+
+secrets:
+  mysql_root_password:
+    external: true
+  mysql_password:
+    external: true
+  redis_password:
+    external: true
+  jwt_secret:
+    external: true
+  smtp_password:
+    external: true
+  ssl_cert:
+    external: true
+  ssl_key:
+    external: true
+
+networks:
+  chemgraph-prod-network:
+    driver: overlay
+    attachable: true
+    name: chemgraph-prod-network

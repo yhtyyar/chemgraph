@@ -1,0 +1,115 @@
+# Chemgraph .gitignore
+# =============================================================================
+
+# Environment & Secrets
+.env
+.env.*
+*.env
+.env.local
+.env.production
+.env.staging
+*.secret
+secrets/
+*.age
+*.gpg
+
+# Docker
+docker-compose.override.yml
+docker-compose.*.yml
+!docker-compose.yml
+!docker-compose.staging.yml
+!docker-compose.prod.yml
+
+# Build artifacts
+dist/
+build/
+*.zip
+*.tar.gz
+*.tar.gz.age
+
+# Database
+*.sql
+*.dump
+*.sqlite
+*.db
+backups/
+*.backup
+*.bak
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+docker-compose.log
+
+# Node.js
+node_modules/
+npm-cache/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+env/
+pip-wheel-metadata/
+
+# IDE & Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.sublime-project
+*.sublime-workspace
+
+# OS
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# SSL / Certificates
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+config/ssl/
+
+# Cloudflare
+.cloudflared/
+*.json
+
+# Ghost CMS (generated content)
+content/
+!content/themes/
+content/images/
+content/data/
+content/apps/
+content/logs/
+
+# Test / Coverage
+coverage/
+.nyc_output/
+*.lcov
+
+# Temporary
+tmp/
+temp/
+*.tmp
+*.temp
+
+# Misc
+*.orig
+*.rej
+.vercel
+.netlify
