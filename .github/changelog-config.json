@@ -1,0 +1,33 @@
+{
+  "categories": [
+    {
+      "title": "🚀 Features",
+      "labels": ["feature", "enhancement"]
+    },
+    {
+      "title": "🐛 Bug Fixes",
+      "labels": ["bug", "fix"]
+    },
+    {
+      "title": "📚 Documentation",
+      "labels": ["docs", "documentation"]
+    },
+    {
+      "title": "🔧 Maintenance",
+      "labels": ["chore", "maintenance", "refactor", "ci", "build"]
+    },
+    {
+      "title": "🔒 Security",
+      "labels": ["security", "vulnerability"]
+    },
+    {
+      "title": "⚡ Performance",
+      "labels": ["performance", "optimization"]
+    }
+  ],
+  "excludeLabels": ["wip", "skip-changelog"],
+  "includeLabels": [],
+  "template": "# {{title}}\n\n{{#each commits}}\n- {{message}} ([#{{number}}]({{url}}))\n{{/each}}\n",
+  "header": "# Changelog\n\nAll notable changes to this project will be documented in this file.\n\nThe format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),\nand this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).\n",
+  "footer": "\n---\n*Generated automatically via [release-changelog-builder-action](https://github.com/mikepenz/release-changelog-builder-action)*"
+}
