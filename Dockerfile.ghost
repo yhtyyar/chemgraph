@@ -48,8 +48,8 @@ RUN apk add --no-cache \
     tini
 
 # Create non-root user
-RUN addgroup -g 1000 -S ghost \
-    && adduser -u 1000 -S ghost -G ghost
+RUN addgroup -g 1001 -S ghost \
+    && adduser -u 1001 -S ghost -G ghost
 
 # Create app directory
 WORKDIR /var/lib/ghost
