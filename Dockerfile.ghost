@@ -8,7 +8,7 @@
 FROM node:20-alpine AS builder
 
 # Build arguments
-ARG GHOST_VERSION=5.100
+ARG GHOST_VERSION=5.99.0
 ARG TARGETARCH
 
 # Install build dependencies
@@ -23,9 +23,9 @@ RUN apk add --no-cache \
 WORKDIR /usr/src/ghost
 
 # Download and verify Ghost
-RUN wget -q "https://github.com/TryGhost/Ghost/releases/download/v${GHOST_VERSION}.0/Ghost-${GHOST_VERSION}.0.zip" \
-    && unzip -q "Ghost-${GHOST_VERSION}.0.zip" \
-    && rm "Ghost-${GHOST_VERSION}.0.zip"
+RUN wget -q "https://github.com/TryGhost/Ghost/releases/download/v${GHOST_VERSION}/Ghost-${GHOST_VERSION}.zip" \
+    && unzip -q "Ghost-${GHOST_VERSION}.zip" \
+    && rm "Ghost-${GHOST_VERSION}.zip"
 
 # Install production dependencies only
 RUN npm install --omit=dev --ignore-scripts \
@@ -37,7 +37,7 @@ RUN npm install --omit=dev --ignore-scripts \
 FROM node:20-alpine AS runtime
 
 # Build arguments
-ARG GHOST_VERSION=5.100
+ARG GHOST_VERSION=5.99.0
 
 # Install runtime dependencies
 RUN apk add --no-cache \
