@@ -28,7 +28,7 @@ RUN wget -q "https://github.com/TryGhost/Ghost/releases/download/v${GHOST_VERSIO
     && rm "ghost-${GHOST_VERSION}.tgz"
 
 # Install production dependencies only
-RUN npm install --omit=dev --ignore-scripts \
+RUN npm install --omit=dev --ignore-scripts --legacy-peer-deps \
     && npm cache clean --force
 
 # =============================================================================
