@@ -122,7 +122,7 @@ jobs:
             echo "Pulling latest image..."
             docker pull ${{ needs.build-and-push.outputs.image-tag }}
             echo "Updating stack..."
-            docker-compose -f docker-compose.yml -f docker-compose.staging.yml up -d --no-deps ghost
+            docker compose -f docker-compose.yml -f docker-compose.staging.yml up -d --no-deps ghost
             echo "Waiting for health check..."
             sleep 15
             curl -f https://staging.chemgraph.ru/health || exit 1
@@ -162,7 +162,7 @@ jobs:
 
             # Rolling update for zero-downtime
             echo "Starting rolling update..."
-            docker-compose -f docker-compose.prod.yml up -d --no-deps --scale ghost=3 ghost
+            docker compose -f docker-compose.prod.yml up -d --no-deps --scale ghost=3 ghost
             sleep 30
 
             # Health check
@@ -178,7 +178,7 @@ jobs:
 
             # Scale back to normal replicas
             echo "Scaling to normal replicas..."
-            docker-compose -f docker-compose.prod.yml up -d --no-deps --scale ghost=2 ghost
+            docker compose -f docker-compose.prod.yml up -d --no-deps --scale ghost=2 ghost
 
             # Final verification
             echo "Final verification..."
@@ -247,7 +247,7 @@ jobs:
             echo "Deploying $IMAGE_TAG to ${{ github.event.inputs.environment }}"
 
             docker pull $IMAGE_TAG
-            docker-compose -f ${{ steps.target.outputs.compose }} up -d --no-deps ghost
+            docker compose -f ${{ steps.target.outputs.compose }} up -d --no-deps ghost
             sleep 15
 
             curl -f ${{ steps.target.outputs.url }}/health || exit 1
