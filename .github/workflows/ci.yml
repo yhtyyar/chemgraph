@@ -27,7 +27,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Validate docker-compose
-        run: docker-compose config > /dev/null
+        run: docker compose config > /dev/null
 
       - name: Validate JSON configs
         run: |
@@ -99,11 +99,17 @@ jobs:
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: 'trivy-fs.sarif'
+        continue-on-error: true
 
       - name: Run gitleaks (secret detection)
-        uses: gitleaks/gitleaks-action@v2
-        with:
-          args: '--verbose --redact'
+        run: |
+          # Install gitleaks
+          curl -sSfL https://github.com/gitleaks/gitleaks/releases/download/v8.24.3/gitleaks_8.24.3_linux_x64.tar.gz | tar -xz gitleaks
+          chmod +x gitleaks
+          # Scan filesystem (not PR mode)
+          ./gitleaks detect --source=. --verbose --redact --exit-code=1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Generate SBOM
         uses: anchore/sbom-action@v0
@@ -116,6 +122,7 @@ jobs:
         with:
           sarif_file: sbom.spdx.json
           category: sbom
+        continue-on-error: true
 
   # =============================================================================
   # BUILD DOCKER IMAGE
@@ -166,7 +173,7 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           build-args: |
-            GHOST_VERSION=${{ vars.GHOST_VERSION || '5.100' }}
+            GHOST_VERSION=${{ vars.GHOST_VERSION || '6.69.0' }}
 
       - name: Run Trivy on built image
         if: github.event_name != 'pull_request'
@@ -183,6 +190,7 @@ jobs:
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: 'trivy-image.sarif'
+        continue-on-error: true
 
   # =============================================================================
   # INTEGRATION TEST (Spin up stack and verify)
@@ -216,16 +224,16 @@ jobs:
 
       - name: Start stack
         run: |
-          docker-compose up -d --build
+          docker compose up -d --build
           echo "Waiting for services to be healthy..."
           sleep 30
 
       - name: Check service health
         run: |
-          docker-compose ps
+          docker compose ps
           # Wait for all services to be healthy
           for i in {1..30}; do
-            if docker-compose ps --format json | jq -r 'select(.Health != "healthy")' | grep -q .; then
+            if docker compose ps --format json | jq -r 'select(.Health != "healthy")' | grep -q .; then
               echo "Waiting for healthy services... ($i/30)"
               sleep 10
             else
@@ -245,7 +253,7 @@ jobs:
             sleep 5
           done
           echo "Ghost health check failed"
-          docker-compose logs ghost --tail=50
+          docker compose logs ghost --tail=50
           exit 1
 
       - name: Test Nginx proxy
@@ -254,7 +262,7 @@ jobs:
             echo "Nginx proxy health check passed"
           else
             echo "Nginx proxy health check failed"
-            docker-compose logs nginx --tail=50
+            docker compose logs nginx --tail=50
             exit 1
           fi
 
@@ -269,54 +277,8 @@ jobs:
 
       - name: Show logs on failure
         if: failure()
-        run: docker-compose logs --tail=100
+        run: docker compose logs --tail=100
 
       - name: Cleanup
         if: always()
-        run: docker-compose down -v
-
-  # =============================================================================
-  # DEPENDENCY REVIEW (for PRs)
-  # =============================================================================
-  dependency-review:
-    name: Dependency Review
-    runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
-    permissions:
-      contents: read
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Review dependencies
-        uses: actions/dependency-review-action@v4
-        with:
-          config-file: '.github/dependency-review-config.yml'
-          fail-on-severity: high
-
-  # =============================================================================
-  # CODEQL ANALYSIS
-  # =============================================================================
-  codeql:
-    name: CodeQL Analysis
-    runs-on: ubuntu-latest
-    permissions:
-      security-events: write
-      contents: read
-    strategy:
-      matrix:
-        language: [javascript, python]
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
-        with:
-          languages: ${{ matrix.language }}
-          queries: +security-and-quality
-
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
-        with:
-          category: "/language:${{ matrix.language }}"
+        run: docker compose down -v

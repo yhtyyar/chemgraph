@@ -87,7 +87,7 @@ config/ssl/
 
 # Cloudflare
 .cloudflared/
-*.json
+!config/ghost/config.production.json
 
 # Ghost CMS (generated content)
 content/

@@ -6,7 +6,7 @@
 
 # Variables
 COMPOSE_FILE := docker-compose.yml
-COMPOSE := docker-compose -f $(COMPOSE_FILE)
+COMPOSE := docker compose -f $(COMPOSE_FILE)
 PROJECT_NAME := chemgraph
 
 # Colors for output

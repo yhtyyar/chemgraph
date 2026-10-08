@@ -8,7 +8,7 @@
 FROM node:20-alpine AS builder
 
 # Build arguments
-ARG GHOST_VERSION=5.100
+ARG GHOST_VERSION=6.69.0
 ARG TARGETARCH
 
 # Install build dependencies
@@ -22,13 +22,13 @@ RUN apk add --no-cache \
 # Create app directory
 WORKDIR /usr/src/ghost
 
-# Download and verify Ghost
-RUN wget -q "https://github.com/TryGhost/Ghost/releases/download/${GHOST_VERSION}/Ghost-${GHOST_VERSION}.zip" \
-    && unzip -q "Ghost-${GHOST_VERSION}.zip" \
-    && rm "Ghost-${GHOST_VERSION}.zip"
+# Download and verify Ghost (using .tgz format for modern Ghost versions)
+RUN wget -q "https://github.com/TryGhost/Ghost/releases/download/v${GHOST_VERSION}/ghost-${GHOST_VERSION}.tgz" \
+    && tar -xzf "ghost-${GHOST_VERSION}.tgz" \
+    && rm "ghost-${GHOST_VERSION}.tgz"
 
 # Install production dependencies only
-RUN npm install --omit=dev --ignore-scripts \
+RUN npm install --omit=dev --ignore-scripts --legacy-peer-deps \
     && npm cache clean --force
 
 # =============================================================================
@@ -37,7 +37,7 @@ RUN npm install --omit=dev --ignore-scripts \
 FROM node:20-alpine AS runtime
 
 # Build arguments
-ARG GHOST_VERSION=5.100
+ARG GHOST_VERSION=6.69.0
 
 # Install runtime dependencies
 RUN apk add --no-cache \
@@ -48,8 +48,8 @@ RUN apk add --no-cache \
     tini
 
 # Create non-root user
-RUN addgroup -g 1000 -S ghost \
-    && adduser -u 1000 -S ghost -G ghost
+RUN addgroup -g 1001 -S ghost \
+    && adduser -u 1001 -S ghost -G ghost
 
 # Create app directory
 WORKDIR /var/lib/ghost

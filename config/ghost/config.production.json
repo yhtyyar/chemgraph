@@ -1,0 +1,110 @@
+{
+  "url": "http://localhost",
+  "admin": {
+    "url": "http://localhost/ghost"
+  },
+  "database": {
+    "client": "mysql",
+    "connection": {
+      "host": "mysql",
+      "port": 3306,
+      "user": "ghost",
+      "password": "changeme_ghost_password_here",
+      "database": "ghost",
+      "charset": "utf8mb4",
+      "ssl": {
+        "rejectUnauthorized": false
+      }
+    },
+    "pool": {
+      "min": 2,
+      "max": 10
+    }
+  },
+  "mail": {
+    "transport": "SMTP",
+    "options": {
+      "host": "smtp.yandex.ru",
+      "port": 465,
+      "secure": true,
+      "auth": {
+        "user": "your-email@yandex.ru",
+        "pass": "your-app-password-here"
+      },
+      "tls": {
+        "rejectUnauthorized": false
+      }
+    },
+    "from": "Chemgraph <noreply@localhost>"
+  },
+  "logging": {
+    "level": "info",
+    "rotation": {
+      "enabled": true,
+      "period": "1d",
+      "count": 7
+    },
+    "transports": ["stdout", "file"]
+  },
+  "security": {
+    "frameOptions": "DENY",
+    "referrerPolicy": "strict-origin-when-cross-origin",
+    "contentSecurityPolicy": {
+      "default-src": "'self'",
+      "script-src": "'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://unpkg.com",
+      "style-src": "'self' 'unsafe-inline' https://fonts.googleapis.com",
+      "font-src": "'self' https://fonts.gstatic.com data:",
+      "img-src": "'self' data: https: blob:",
+      "connect-src": "'self' https://api.chemgraph.ru wss://api.chemgraph.ru",
+      "frame-ancestors": "'none'",
+      "form-action": "'self'",
+      "base-uri": "'self'",
+      "object-src": "'none'"
+    },
+    "hsts": {
+      "maxAge": 31536000,
+      "includeSubDomains": true,
+      "preload": true
+    },
+    "cors": {
+      "origin": "http://localhost",
+      "credentials": true
+    }
+  },
+  "privacy": {
+    "useUpdateCheck": false,
+    "useGravatar": false,
+    "useRpcPing": false,
+    "useStructuredData": true
+  },
+  "spam": {
+    "prevention": {
+      "enabled": true,
+      "honeyPot": true,
+      "rateLimit": {
+        "windowMs": 900000,
+        "max": 5
+      }
+    }
+  },
+  "storage": {
+    "active": "local-file-store"
+  },
+  "caching": {
+    "frontend": {
+      "maxAge": 0
+    },
+    "redis": {
+      "host": "redis",
+      "port": 6379,
+      "password": "changeme_redis_password_here",
+      "db": 0
+    }
+  },
+  "scheduling": {
+    "timezone": "Europe/Moscow"
+  },
+  "unsplash": {
+    "enabled": false
+  }
+}
