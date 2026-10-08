@@ -173,7 +173,7 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           build-args: |
-            GHOST_VERSION=${{ vars.GHOST_VERSION || '5.100' }}
+            GHOST_VERSION=${{ vars.GHOST_VERSION || '5.99.0' }}
 
       - name: Run Trivy on built image
         if: github.event_name != 'pull_request'
