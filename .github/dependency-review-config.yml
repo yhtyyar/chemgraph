@@ -4,9 +4,7 @@
 # =============================================================================
 
 fail-on-severity: high
-allow-ghsas:
-  # Allow specific vulnerabilities if needed (with justification)
-  # - GHSA-xxxx-xxxx-xxxx  # Justification: ...
+allow-ghsas: []
 
 ignore-paths:
   - 'docs/**'

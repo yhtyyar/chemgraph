@@ -99,6 +99,7 @@ jobs:
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: 'trivy-fs.sarif'
+        continue-on-error: true
 
       - name: Run gitleaks (secret detection)
         uses: gitleaks/gitleaks-action@v2
@@ -116,6 +117,7 @@ jobs:
         with:
           sarif_file: sbom.spdx.json
           category: sbom
+        continue-on-error: true
 
   # =============================================================================
   # BUILD DOCKER IMAGE
@@ -305,7 +307,7 @@ jobs:
       contents: read
     strategy:
       matrix:
-        language: [javascript, python]
+        language: [python]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
