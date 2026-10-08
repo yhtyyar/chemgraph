@@ -23,7 +23,7 @@ RUN apk add --no-cache \
 WORKDIR /usr/src/ghost
 
 # Download and verify Ghost
-RUN wget -q "https://github.com/TryGhost/Ghost/releases/download/${GHOST_VERSION}.0/Ghost-${GHOST_VERSION}.0.zip" \
+RUN wget -q "https://github.com/TryGhost/Ghost/releases/download/v${GHOST_VERSION}.0/Ghost-${GHOST_VERSION}.0.zip" \
     && unzip -q "Ghost-${GHOST_VERSION}.0.zip" \
     && rm "Ghost-${GHOST_VERSION}.0.zip"
 
